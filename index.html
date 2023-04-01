@@ -11,6 +11,8 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./style.css" />
     <style>
       main {
         display: flex;
@@ -18,7 +20,8 @@
         align-items: center;
       }
       #reader {
-        width: 600px;
+        width: 100vw;
+        /* margin: 50px; */
       }
       #result {
         text-align: center;
@@ -27,7 +30,16 @@
     </style>
   </head>
   <body>
-    <main>
+    <header class="shadow-sm">
+      <div class="h-[80px] px-5 lg-10 flex items-center justify-center">
+        <img
+          src="./codebyters-dark.png"
+          alt="codebyters logo"
+          class="max-w-[200px]"
+        />
+      </div>
+    </header>
+    <main class="flex flex-col">
       <div id="reader"></div>
       <div id="result"></div>
     </main>
@@ -41,29 +53,77 @@
         fps: 20, // Frames per second to attempt a scan
       });
 
-      scanner.render(success, error);
+      //   scanner.render(success, error);
       // Starts scanner
 
-      function success(result) {
-        document.getElementById("result").innerHTML = `
-        <h2>Success!</h2>
-        <img src="./sample-img.jpeg" width="300" height="300">
-        <h3>Kaarlo Ruy Sasiang</h3>
-        <p>ID:<a href="${result}">${result}</a></p>
-        `;
-        // Prints result as a link inside result element
+      //   function success(result) {
+      //     document.getElementById("result").innerHTML = `
+      //     <h2>Success!</h2>
+      //     <img src="./sample-img.jpeg" width="300" height="300">
+      //     <h3>Kaarlo Ruy Sasiang</h3>
+      //     <p>ID:<a href="${result}">${result}</a></p>
+      //     `;
+      //     // Prints result as a link inside result element
 
-        scanner.clear();
-        // Clears scanning instance
+      //     scanner.clear();
+      //     // Clears scanning instance
 
-        document.getElementById("reader").remove();
-        // Removes reader element from DOM since no longer needed
-      }
+      //     document.getElementById("reader").remove();
+      //     // Removes reader element from DOM since no longer needed
+      //   }
 
-      function error(err) {
-        console.error(err);
-        // Prints any errors to the console
-      }
+      //   function error(err) {
+      //     // console.error(err);
+      //     // Prints any errors to the console
+      //   }
+      const html5QrCode = new Html5Qrcode(/* element id */ "reader");
+      Html5Qrcode.getCameras()
+        .then((devices) => {
+          console.log(devices);
+          if (devices && devices.length) {
+            var cameraId = devices[0].id;
+            html5QrCode
+              .start(
+                { facingMode: "environment" },
+                {
+                  fps: 60, // Optional, frame per seconds for qr code scanning
+                  qrbox: { width: 250, height: 250 }, // Optional, if you want bounded box UI
+                  rememberLastUsedCamera: true,
+                },
+                (decodedText, decodedResult) => {
+                  // do something when code is read
+                  console.table(decodedResult);
+                  Swal.fire({
+                    title: "Kaarlo Ruy P. Sasiang",
+                    text: `School ID: ${decodedText}`,
+                    imageUrl: "./sample-img.jpeg",
+                    imageWidth: 200,
+                    imageHeight: 200,
+                    imageAlt: "Custom image",
+                  });
+                  html5QrCode
+                    .stop()
+                    .then((ignore) => {
+                      // QR Code scanning is stopped.
+                    })
+                    .catch((err) => {
+                      // Stop failed, handle it.
+                      console.log(err);
+                    });
+                },
+                (errorMessage) => {
+                  // parse error, ignore it.
+                }
+              )
+              .catch((err) => {
+                // Start failed, handle it.
+              });
+          }
+        })
+        .catch((err) => {
+          // handle err
+          //   console.log(err);
+        });
     </script>
   </body>
 </html>
