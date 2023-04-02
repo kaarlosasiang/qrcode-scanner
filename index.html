@@ -12,16 +12,24 @@
       referrerpolicy="no-referrer"
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./style.css" />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background-color: rgb(24, 26, 32);
+      }
       main {
         display: flex;
         justify-content: center;
         align-items: center;
-      }
-      #reader {
-        width: 100vw;
-        /* margin: 50px; */
       }
       #result {
         text-align: center;
@@ -30,86 +38,59 @@
     </style>
   </head>
   <body>
-    <header class="shadow-sm">
+    <header class="shadow">
       <div class="h-[80px] px-5 lg-10 flex items-center justify-center">
         <img
-          src="./codebyters-dark.png"
+          src="./codebyters-logo.png"
           alt="codebyters logo"
           class="max-w-[200px]"
         />
       </div>
     </header>
     <main class="flex flex-col">
-      <div id="reader"></div>
+      <div class="text-center py-5 text-white">
+        <h1 class="text-2xl font-semibold uppercase">Scan QR Code</h1>
+        <span>Place the QR code inside the area</span>
+      </div>
+      <p
+        class="bg-[#00acac] w-[400px] text-center text-white"
+        id="scanning-status"
+      ></p>
+      <div id="reader" class="relative w-[400px]"></div>
       <div id="result"></div>
     </main>
     <script>
-      const scanner = new Html5QrcodeScanner("reader", {
-        // Scanner will be initialized in DOM inside element with id of 'reader'
-        qrbox: {
-          width: 250,
-          height: 250,
-        }, // Sets dimensions of scanning box (set relative to reader element width)
-        fps: 20, // Frames per second to attempt a scan
-      });
-
-      //   scanner.render(success, error);
-      // Starts scanner
-
-      //   function success(result) {
-      //     document.getElementById("result").innerHTML = `
-      //     <h2>Success!</h2>
-      //     <img src="./sample-img.jpeg" width="300" height="300">
-      //     <h3>Kaarlo Ruy Sasiang</h3>
-      //     <p>ID:<a href="${result}">${result}</a></p>
-      //     `;
-      //     // Prints result as a link inside result element
-
-      //     scanner.clear();
-      //     // Clears scanning instance
-
-      //     document.getElementById("reader").remove();
-      //     // Removes reader element from DOM since no longer needed
-      //   }
-
-      //   function error(err) {
-      //     // console.error(err);
-      //     // Prints any errors to the console
-      //   }
       const html5QrCode = new Html5Qrcode(/* element id */ "reader");
       Html5Qrcode.getCameras()
         .then((devices) => {
-          console.log(devices);
           if (devices && devices.length) {
             var cameraId = devices[0].id;
             html5QrCode
               .start(
                 { facingMode: "environment" },
                 {
-                  fps: 60, // Optional, frame per seconds for qr code scanning
+                  fps: 10, // Optional, frame per seconds for qr code scanning
                   qrbox: { width: 250, height: 250 }, // Optional, if you want bounded box UI
                   rememberLastUsedCamera: true,
                 },
                 (decodedText, decodedResult) => {
                   // do something when code is read
-                  console.table(decodedResult);
+                  document.getElementById("scanning-status").innerText = "";
+
                   Swal.fire({
                     title: "Kaarlo Ruy P. Sasiang",
                     text: `School ID: ${decodedText}`,
                     imageUrl: "./sample-img.jpeg",
                     imageWidth: 200,
                     imageHeight: 200,
+                    confirmButtonText: "Done",
                     imageAlt: "Custom image",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      html5QrCode.resume();
+                    }
                   });
-                  html5QrCode
-                    .stop()
-                    .then((ignore) => {
-                      // QR Code scanning is stopped.
-                    })
-                    .catch((err) => {
-                      // Stop failed, handle it.
-                      console.log(err);
-                    });
+                  html5QrCode.pause(true);
                 },
                 (errorMessage) => {
                   // parse error, ignore it.
@@ -118,6 +99,10 @@
               .catch((err) => {
                 // Start failed, handle it.
               });
+            setTimeout(() => {
+              document.getElementById("scanning-status").innerText =
+                "Scanning...";
+            }, 2000);
           }
         })
         .catch((err) => {
