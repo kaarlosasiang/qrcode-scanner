@@ -1,7 +1,7 @@
 {
   "name": "CodeByters Attendance System",
   "short_name": "Attendance System",
-  "start_url": "/index.html",
+  "start_url": "/qrcode-scanner/index.html",
   "display": "standalone",
   "background_color": "#181A20",
   "theme_color": "#181A20",
